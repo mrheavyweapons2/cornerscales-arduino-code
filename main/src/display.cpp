@@ -12,4 +12,29 @@
 //header for the actual LCD stuff
 #include <LiquidCrystal_I2C.h>
 
-//code here (eventually)
+//LED frame stuff
+
+//constructor
+ledFrame::ledFrame(LiquidCrystal_I2C& lcd) : lcdObject(lcd) {}
+//function to initialize the LCD
+void ledFrame::initializeDisplay() {
+    //initialize the object here instead of in main
+    lcdObject.init();
+    lcdObject.backlight();
+}
+
+//small display stuff
+
+//constructor
+smallDisplay::smallDisplay(LiquidCrystal_I2C& lcd, char* name, double* value) : 
+                            ledFrame(lcd), name(name), value(value) {}
+//function to update the display
+void smallDisplay::updateDisplay() {
+    //code
+}
+
+//master display stuff
+
+//constructor
+masterDisplay::masterDisplay(LiquidCrystal_I2C& lcd) : 
+                            ledFrame(lcd) {}

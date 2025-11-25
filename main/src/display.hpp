@@ -27,6 +27,7 @@ protected:
     ledFrame(LiquidCrystal_I2C& lcd);
 
 public:
+    //function to initialize the display
     void initializeDisplay();
 };
 
@@ -39,11 +40,13 @@ public:
  */
 class smallDisplay : public ledFrame {
 private:
+    //private pointers that store the name and value of the display
     char* name;
     double* value;
 public:
+    //function to update the display (should be put in the loop)
     void updateDisplay();
-
+    //constructor
     smallDisplay(LiquidCrystal_I2C& lcd, char* name, double* value);
 };
 
@@ -55,6 +58,7 @@ public:
  */
 class masterDisplay : public ledFrame {
 public:
+    //constructor
     masterDisplay(LiquidCrystal_I2C& lcd);
 };
 
