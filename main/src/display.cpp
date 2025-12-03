@@ -15,7 +15,7 @@
 //LED frame stuff
 
 //constructor
-ledFrame::ledFrame(LiquidCrystal_I2C& lcd) : lcdObject(lcd) {}
+ledFrame::ledFrame(uint8_t lcdAddress) : lcdAddress(lcdAddress), lcdObject(lcdAddress, 16, 2) {}
 //function to initialize the LCD
 void ledFrame::initializeDisplay() {
     //initialize the object here instead of in main
@@ -26,15 +26,21 @@ void ledFrame::initializeDisplay() {
 //small display stuff
 
 //constructor
-smallDisplay::smallDisplay(LiquidCrystal_I2C& lcd, char* name, double* value) : 
-                            ledFrame(lcd), name(name), value(value) {}
+smallDisplay::smallDisplay(uint8_t lcdAddress, const char* name, double* value, const char* unit) : 
+                            ledFrame(lcdAddress), name(name), value(value), unit(unit) {}
 //function to update the display
 void smallDisplay::updateDisplay() {
-    //code
+    lcdObject.clear();
+    lcdObject.setCursor(0, 0);
+    lcdObject.print(name);
+    lcdObject.setCursor(0, 1);
+    lcdObject.print(*value);
+    lcdObject.print(" ");
+    lcdObject.print(unit);
 }
 
 //master display stuff
 
 //constructor
-masterDisplay::masterDisplay(LiquidCrystal_I2C& lcd) : 
-                            ledFrame(lcd) {}
+masterDisplay::masterDisplay(uint8_t lcdAddress) : 
+                            ledFrame(lcdAddress) {}

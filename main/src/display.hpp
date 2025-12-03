@@ -4,10 +4,10 @@
 /**
  * @file display.hpp
  * @author Jeremiah Nairn
- * @ingroup main/include
+ * @ingroup main/src
  *
  * @brief Contains headers that are used to simplify the use of the LCD displays.
- * Takes pointer information and constantly updates it when needed.
+ * Takes pointer information and constantly updates the displays when prompted.
  */
 
 //header for the LCD stuff and others
@@ -22,9 +22,10 @@
 
 class ledFrame {
 protected:
-    LiquidCrystal_I2C& lcdObject;
+    uint8_t lcdAddress;
+    LiquidCrystal_I2C lcdObject;
 
-    ledFrame(LiquidCrystal_I2C& lcd);
+    ledFrame(uint8_t address);
 
 public:
     //function to initialize the display
@@ -41,13 +42,14 @@ public:
 class smallDisplay : public ledFrame {
 private:
     //private pointers that store the name and value of the display
-    char* name;
+    const char* name;
     double* value;
+    const char* unit;
 public:
     //function to update the display (should be put in the loop)
     void updateDisplay();
     //constructor
-    smallDisplay(LiquidCrystal_I2C& lcd, char* name, double* value);
+    smallDisplay(uint8_t lcdAddress, const char* name, double* value, const char* unit = " ");
 };
 
 /**
@@ -59,7 +61,7 @@ public:
 class masterDisplay : public ledFrame {
 public:
     //constructor
-    masterDisplay(LiquidCrystal_I2C& lcd);
+    masterDisplay(uint8_t lcdAddress);
 };
 
 #endif //DISPLAY_HPP

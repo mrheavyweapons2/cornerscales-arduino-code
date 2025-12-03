@@ -18,11 +18,10 @@
 //declare the displays
 //LiquidCrystal_I2C lcd_master(0x27, 20, 4); //master display (placed in the middle)
 
-int hello = 1;
+double testValue = 1.0;
 
 //declare the small lcd object
-LiquidCrystal_I2C lcdTest(0x27,16,2);
-smallDisplay testDisplay(lcdTest,"bleh",hello);
+smallDisplay testDisplay(0x27,"Test Display",&testValue, "lbs");
 
 //arduino setup
 void setup() {
@@ -35,8 +34,8 @@ void setup() {
 
 
 void loop() {
-    //code
-    hello +=1;
+    //code intervals + 1 every 2 seconds, and updates the display accordingly
+    testValue += 1;
     testDisplay.updateDisplay();
     //set loop interval to 2 seconds
     delay(2000);
