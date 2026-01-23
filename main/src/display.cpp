@@ -41,6 +41,5 @@ void smallDisplay::updateDisplay() {
 
 //master display stuff
 
-//constructor
-masterDisplay::masterDisplay(uint8_t lcdAddress) : 
-                            ledFrame(lcdAddress) {}
+//constructor (commented out because i cant be assed to finish this rn)
+//masterDisplay::masterDisplay(uint8_t lcdAddress) : ledFrame(lcdAddress), lcdObject(lcdAddress, 20, 4) {}

@@ -61,7 +61,7 @@ public:
 class masterDisplay : public ledFrame {
 public:
     //constructor
-    masterDisplay(uint8_t lcdAddress);
+    masterDisplay(uint8_t lcdAddress, const char* name);
 };
 
 #endif //DISPLAY_HPP
