@@ -29,14 +29,18 @@ void ledFrame::initializeDisplay() {
 smallDisplay::smallDisplay(uint8_t lcdAddress, const char* name, double* value, const char* unit) : 
                             ledFrame(lcdAddress), name(name), value(value), unit(unit) {}
 //function to update the display
-void smallDisplay::updateDisplay() {
+void smallDisplay::updateDisplay(bool message = false, const char* customMessage = "") {
     lcdObject.clear();
     lcdObject.setCursor(0, 0);
     lcdObject.print(name);
     lcdObject.setCursor(0, 1);
-    lcdObject.print(*value);
-    lcdObject.print(" ");
-    lcdObject.print(unit);
+    if (message) {
+        lcdObject.print(customMessage);
+    } else {
+        lcdObject.print(*value);
+        lcdObject.print(" ");
+        lcdObject.print(unit);
+    }
 }
 
 //master display stuff

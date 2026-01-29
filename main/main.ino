@@ -9,21 +9,19 @@
 
 //neccesary includes
 #include <Arduino.h>
-#include "HX711.h"
-HX711 scale;
 #include <Wire.h>
-#include <LiquidCrystal_I2C.h>
+#include <LiquidCrystal_I2C.h> //display library
+#include <SPI.h>
+#include <RF24.h> //radio library
 
 //include headers
 #include "src/display.hpp"
 
-//declare specific wires
-#define DT_PIN_FR 9
-#define SCK_PIN_FR 8
+//declare the radio
+RF24 radio(9, 10);
+const uint64_t address = 0x4E4F444531; // "NODE1" in hex
 
-
-//declare the displays
-
+//make a value to store the weight
 double weight = 1.0;
 
 //declare the small lcd object
@@ -31,32 +29,42 @@ smallDisplay testDisplay(0x27,"Test Display",&weight, "lbs");
 
 //arduino setup
 void setup() {
-    Serial.println("Beginning setup");
     Wire.begin();
     //set the serial and declare the scanner active
     Serial.begin(9600);
+    Serial.println("Beginning setup");
     //initialize the LCD's
     testDisplay.initializeDisplay();
     Serial.println("Display ready");
-    //setup the scales
-    scale.begin(DT_PIN_FR, SCK_PIN_FR);
-    scale.set_scale(2280.0); //calibrate the scale
-    scale.tare(); //reset zero point
-    Serial.println("HX711 ready");
+    //setup the radio
+    radio.begin();
+    radio.setChannel(76);
+    radio.setAutoAck(true);
+    radio.setRetries(5, 15); // delay, count
+    radio.setPayloadSize(sizeof(float));
+    radio.setPALevel(RF24_PA_LOW);
+    radio.setDataRate(RF24_250KBPS);
+    radio.openReadingPipe(1, address);
+    radio.startListening();
+    Serial.println("Radio Setup");
 }
 
 
 void loop() {
-    //hx711 test code
-    if (scale.is_ready()) {
-        long raw = scale.read();
-        weight = scale.get_units(10);//average of 10 readings
-
-    } else {
-        Serial.println("HX711 not ready");
-    }
     //update the test display
-    testDisplay.updateDisplay();
+    if (radio.available()) {
+        float receivedValue;
+        radio.read(&receivedValue, sizeof(receivedValue));
+        //check if the value is reasonable
+        if (receivedValue != 0.0) {
+            //update the weight variable with the received value and update the display
+            weight = (double)receivedValue;
+            testDisplay.updateDisplay();
+        } else {
+            testDisplay.updateDisplay(true, "No Signal");
+        }
+
+    }
     //set loop interval to .2 seconds
-    delay(200);
+    delay(500);
 }

@@ -47,7 +47,7 @@ private:
     const char* unit;
 public:
     //function to update the display (should be put in the loop)
-    void updateDisplay();
+    void updateDisplay(bool message = false, const char* customMessage = "");
     //constructor
     smallDisplay(uint8_t lcdAddress, const char* name, double* value, const char* unit = " ");
 };
