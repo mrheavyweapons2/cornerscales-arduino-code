@@ -37,20 +37,23 @@ void setup() {
     Serial.println("HX711 ready");
     //setup the radio
     radio.begin();
+    //check if the radio is connected
+    if (!radio.isChipConnected()) {
+        Serial.println("NRF24 NOT DETECTED");
+        while (1);
+    }
     radio.setChannel(76);
     radio.setAutoAck(true);
     radio.setRetries(5, 15); // delay, count
-    radio.setPayloadSize(sizeof(float));
+    radio.enableDynamicPayloads(); //allow dynamic payloads
     radio.setPALevel(RF24_PA_LOW);
     radio.setDataRate(RF24_250KBPS);
     radio.openWritingPipe(address);
     radio.stopListening();
 }
 
-uint8_t dummy = 42;
-
 void loop() {
-
+    Serial.println("----| loopTick |----");
     //hx711 test code
     if (scale.is_ready()) {
         long raw = scale.read();

@@ -18,7 +18,7 @@
 #include "src/display.hpp"
 
 //declare the radio
-RF24 radio(9, 10);
+RF24 radio(9, 10); //entered as CE pin, CSN pin
 const uint64_t address = 0x4E4F444531; // "NODE1" in hex
 
 //make a value to store the weight
@@ -36,12 +36,20 @@ void setup() {
     //initialize the LCD's
     testDisplay.initializeDisplay();
     Serial.println("Display ready");
+    //making sure the CSN pin is configured correctly
+    pinMode(10, OUTPUT);
+    digitalWrite(10, HIGH);
     //setup the radio
     radio.begin();
+    //check if the radio is connected
+    if (!radio.isChipConnected()) {
+        Serial.println("NRF24 NOT DETECTED");
+        while (1);
+    }
     radio.setChannel(76);
     radio.setAutoAck(true);
     radio.setRetries(5, 15); // delay, count
-    radio.setPayloadSize(sizeof(float));
+    radio.enableDynamicPayloads(); //allow dynamic payloads
     radio.setPALevel(RF24_PA_LOW);
     radio.setDataRate(RF24_250KBPS);
     radio.openReadingPipe(1, address);
@@ -52,19 +60,17 @@ void setup() {
 
 void loop() {
     //update the test display
+    Serial.println("----| loopTick |----");
+    Serial.println(radio.available());
     if (radio.available()) {
         float receivedValue;
         radio.read(&receivedValue, sizeof(receivedValue));
-        //check if the value is reasonable
-        if (receivedValue != 0.0) {
-            //update the weight variable with the received value and update the display
-            weight = (double)receivedValue;
-            testDisplay.updateDisplay();
-        } else {
-            testDisplay.updateDisplay(true, "No Signal");
-        }
-
+        Serial.println(receivedValue);
+        weight = (double)receivedValue;
+        testDisplay.updateDisplay();
+    } else {
+        testDisplay.updateDisplay(true, "No Signal");
     }
-    //set loop interval to .2 seconds
-    delay(500);
+    //set loop interval to 1 seconds
+    delay(1000);
 }
