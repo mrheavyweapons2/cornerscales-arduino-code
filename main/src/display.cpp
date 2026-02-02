@@ -8,7 +8,7 @@
  */
 
 //main header file
-#include "display.hpp"
+#include "display.h"
 //header for the actual LCD stuff
 #include <LiquidCrystal_I2C.h>
 

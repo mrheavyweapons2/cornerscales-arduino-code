@@ -1,8 +1,8 @@
-#ifndef DISPLAY_HPP
-#define DISPLAY_HPP
+#ifndef DISPLAY_H
+#define DISPLAY_H
 
 /**
- * @file display.hpp
+ * @file display.h
  * @author Jeremiah Nairn
  * @ingroup main/src
  *
@@ -64,4 +64,4 @@ public:
     masterDisplay(uint8_t lcdAddress, const char* name);
 };
 
-#endif //DISPLAY_HPP
+#endif

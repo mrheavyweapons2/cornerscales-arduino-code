@@ -15,7 +15,7 @@
 #include <RF24.h> //radio library
 
 //include headers
-#include "src/display.hpp"
+#include "src/display.h"
 
 //declare the radio
 RF24 radio(9, 10); //entered as CE pin, CSN pin
