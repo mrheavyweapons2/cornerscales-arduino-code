@@ -19,13 +19,19 @@
 
 //declare the radio
 RF24 radio(9, 10); //entered as CE pin, CSN pin
-const uint64_t address = 0x4E4F444531; // "NODE1" in hex
 
-//make a value to store the weight
-double weight = 1.0;
+//declare the addresses for the pipes
+const uint64_t address1 = 0x4E4F444531; // "NODE1" in hex
+const uint64_t address2 = 0x4E4F444532; // "NODE2" in hex
+const uint64_t address3 = 0x4E4F444533; // "NODE3" in hex
+const uint64_t address4 = 0x4E4F444534; // "NODE4" in hex
+
 
 //declare the small lcd object
-smallDisplay testDisplay(0x27,"Test Display",&weight, "lbs");
+smallDisplay displayLF(0x27,"Left Front",&weight, "lbs");
+
+//declare the reciever objects
+reciever recieverLF(radio, address1, displayLF);
 
 //arduino setup
 void setup() {
@@ -33,9 +39,6 @@ void setup() {
     //set the serial and declare the scanner active
     Serial.begin(9600);
     Serial.println("Beginning setup");
-    //initialize the LCD's
-    testDisplay.initializeDisplay();
-    Serial.println("Display ready");
     //making sure the CSN pin is configured correctly
     pinMode(10, OUTPUT);
     digitalWrite(10, HIGH);
@@ -46,6 +49,7 @@ void setup() {
         Serial.println("NRF24 NOT DETECTED");
         while (1);
     }
+    //configure the radio
     radio.setChannel(76);
     radio.setAutoAck(true);
     radio.setRetries(5, 15); // delay, count
@@ -55,22 +59,16 @@ void setup() {
     radio.openReadingPipe(1, address);
     radio.startListening();
     Serial.println("Radio Setup");
+
+    //initialize recievers and displays
+    recieverLF.initialize();
+    Serial.println("Recievers and Displays Initialized");
 }
 
 
 void loop() {
-    //update the test display
-    Serial.println("----| loopTick |----");
-    Serial.println(radio.available());
-    if (radio.available()) {
-        float receivedValue;
-        radio.read(&receivedValue, sizeof(receivedValue));
-        Serial.println(receivedValue);
-        weight = (double)receivedValue;
-        testDisplay.updateDisplay();
-    } else {
-        testDisplay.updateDisplay(true, "No Signal");
-    }
+    //update the recievers and displays
+    recieverLF.update();
     //set loop interval to 1 seconds
     delay(1000);
 }
