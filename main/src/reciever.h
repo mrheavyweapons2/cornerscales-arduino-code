@@ -20,12 +20,12 @@ class reciever {
     private:
         RF24& radio; //reference to the RF24 object
         uint64_t address;
-        double value;
+        double& value;
         smallDisplay display;
     
     public:
         //constructor
-        reciever(RF24& radio, uint64_t address, smallDisplay display);
+        reciever(RF24& radio, uint64_t address, double& value, smallDisplay display);
 
         //function to initialize the pipe and display
         void initialize();
@@ -36,3 +36,5 @@ class reciever {
         //function to get the value of the reciever
         double getValue();
 };
+
+#endif

@@ -16,6 +16,7 @@
 
 //include headers
 #include "src/display.h"
+#include "src/reciever.h"
 
 //declare the radio
 RF24 radio(9, 10); //entered as CE pin, CSN pin
@@ -26,16 +27,30 @@ const uint64_t address2 = 0x4E4F444532; // "NODE2" in hex
 const uint64_t address3 = 0x4E4F444533; // "NODE3" in hex
 const uint64_t address4 = 0x4E4F444534; // "NODE4" in hex
 
+//declare weight objects
+double weightLF = 0.0;
+double weightRF = 0.0;
+double weightLR = 0.0;
+double weightRR = 0.0;
 
-//declare the small lcd object
-smallDisplay displayLF(0x27,"Left Front",&weight, "lbs");
+//declare the small lcd objects
+smallDisplay displayLF(0x26,"Left Front",&weightLF, "lbs");
+smallDisplay displayRF(0x23,"Right Front",&weightRF, "lbs");
+smallDisplay displayLR(0x25,"Left Rear", &weightLR, "lbs");
+smallDisplay displayRR(0x22,"Right Rear", &weightRR, "lbs");
+
+//initialize the master display manually
+LiquidCrystal_I2C masterDisplay(0x27, 20, 4);
+
 
 //declare the reciever objects
-reciever recieverLF(radio, address1, displayLF);
+reciever recieverLF(radio, address1, weightLF, displayLF);
+reciever recieverRF(radio, address2, weightRF, displayRF);
+reciever recieverLR(radio, address3, weightLR, displayLR);
+reciever recieverRR(radio, address4, weightRR, displayRR);
 
 //arduino setup
 void setup() {
-    Wire.begin();
     //set the serial and declare the scanner active
     Serial.begin(9600);
     Serial.println("Beginning setup");
@@ -56,12 +71,19 @@ void setup() {
     radio.enableDynamicPayloads(); //allow dynamic payloads
     radio.setPALevel(RF24_PA_LOW);
     radio.setDataRate(RF24_250KBPS);
-    radio.openReadingPipe(1, address);
     radio.startListening();
     Serial.println("Radio Setup");
 
+    //declare the wire for i2c
+    Wire.begin();
     //initialize recievers and displays
     recieverLF.initialize();
+    recieverRF.initialize();
+    recieverLR.initialize();
+    recieverRR.initialize();
+    //initialize the master display
+    masterDisplay.init();
+    masterDisplay.backlight();
     Serial.println("Recievers and Displays Initialized");
 }
 
@@ -69,6 +91,32 @@ void setup() {
 void loop() {
     //update the recievers and displays
     recieverLF.update();
+    recieverRF.update();
+    recieverLR.update();
+    recieverRR.update();
+    //manually update the master display
+    masterDisplay.clear();
+    //print the total weight
+    masterDisplay.setCursor(0, 0);
+    masterDisplay.print("TW: ");
+    masterDisplay.print(weightLF + weightRF + weightLR + weightRR);
+    masterDisplay.print(" lbs");
+    //print the weight distribution from front to back
+    double totalFront = weightLF + weightRF;
+    double totalBack = weightLR + weightRR;
+    masterDisplay.setCursor(0, 1);
+    masterDisplay.print("F: ");
+    masterDisplay.print(totalFront, 2);
+    masterDisplay.print(", B: ");
+    masterDisplay.print(totalBack, 2);
+    //print the weight distribution from left to right
+    double totalLeft = weightLF + weightLR;
+    double totalRight = weightRF + weightRR;
+    masterDisplay.setCursor(0, 2);
+    masterDisplay.print("L: ");
+    masterDisplay.print(totalLeft, 2);
+    masterDisplay.print(", R: ");
+    masterDisplay.print(totalRight, 2);
     //set loop interval to 1 seconds
     delay(1000);
 }
