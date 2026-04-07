@@ -23,11 +23,11 @@ RF24 radio(9, 10); //entered as CE pin, CSN pin
 
 //declare the addresses for the pipes
 const uint64_t address1 = 0x4E4F444531; // "NODE1" in hex
-const uint64_t address2 = 0x4E4F444532; // "NODE2" in hex
-const uint64_t address3 = 0x4E4F444533; // "NODE3" in hex
-const uint64_t address4 = 0x4E4F444534; // "NODE4" in hex
+const uint64_t address2 = 0x11; // "NODE2" in hex
+const uint64_t address3 = 0x12; // "NODE3" in hex
+const uint64_t address4 = 0x13; // "NODE4" in hex
 
-//declare weight objects
+//declare weight variables
 double weightLF = 0.0;
 double weightRF = 0.0;
 double weightLR = 0.0;
@@ -44,13 +44,15 @@ LiquidCrystal_I2C masterDisplay(0x27, 20, 4);
 
 
 //declare the reciever objects
-reciever recieverLF(radio, address1, weightLF, displayLF);
-reciever recieverRF(radio, address2, weightRF, displayRF);
-reciever recieverLR(radio, address3, weightLR, displayLR);
-reciever recieverRR(radio, address4, weightRR, displayRR);
+reciever recieverLF(radio, 0, address1, weightLF, displayLF);
+reciever recieverRF(radio, 1, address2, weightRF, displayRF);
+reciever recieverLR(radio, 2, address3, weightLR, displayLR);
+reciever recieverRR(radio, 3, address4, weightRR, displayRR);
 
 //arduino setup
 void setup() {
+    //wait 1 second
+    delay(1000);
     //set the serial and declare the scanner active
     Serial.begin(9600);
     Serial.println("Beginning setup");
@@ -89,6 +91,8 @@ void setup() {
 
 
 void loop() {
+    //run a lifetick
+    Serial.println("---| loopTick |---");
     //update the recievers and displays
     recieverLF.update();
     recieverRF.update();

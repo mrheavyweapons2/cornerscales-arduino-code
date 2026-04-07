@@ -19,13 +19,14 @@
 class reciever {
     private:
         RF24& radio; //reference to the RF24 object
+        int pipe;
         uint64_t address;
         double& value;
         smallDisplay display;
     
     public:
         //constructor
-        reciever(RF24& radio, uint64_t address, double& value, smallDisplay display);
+        reciever(RF24& radio, int pipe,uint64_t address, double& value, smallDisplay display);
 
         //function to initialize the pipe and display
         void initialize();

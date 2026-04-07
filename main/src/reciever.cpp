@@ -10,12 +10,12 @@
 //include the main header file
 #include "reciever.h"
 
-reciever::reciever(RF24& radio, uint64_t address, double& value, smallDisplay display)
-    : radio(radio), address(address), value(value), display(display) {}
+reciever::reciever(RF24& radio, int pipe, uint64_t address, double& value, smallDisplay display)
+    : radio(radio), pipe(pipe), address(address), value(value), display(display) {}
 
 //function to initialize the pipe and display
 void reciever::initialize() {
-    radio.openReadingPipe(1, address);
+    radio.openReadingPipe(pipe, address);
     display.initializeDisplay();
 }
 

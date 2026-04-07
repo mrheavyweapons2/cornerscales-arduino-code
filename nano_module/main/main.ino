@@ -16,7 +16,7 @@ HX711 scale;
 
 //declare the radio
 RF24 radio(9, 10);
-const uint64_t address = 0x4E4F444531; // "NODE1" in hex
+const uint64_t address = 0x12; // "NODE3" in hex
 
 //declare wires for the cornerweight
 #define DT_PIN_FR 7
@@ -25,6 +25,10 @@ const uint64_t address = 0x4E4F444531; // "NODE1" in hex
 //make a value to store the weight
 float weight = 1.0f;
 
+//calibration value
+const double CALBVALUE = -9120.0;
+const double WEIGHTOFFSET = 1.75;
+
 //arduino setup
 void setup() {
     //set the serial and declare the scanner active
@@ -32,9 +36,12 @@ void setup() {
     Serial.println("Beginning setup");
     //setup the scales
     scale.begin(DT_PIN_FR, SCK_PIN_FR);
-    scale.set_scale(2280.0); //calibrate the scale
+    scale.set_scale(CALBVALUE); //calibrate the scale
     scale.tare(); //reset zero point
     Serial.println("HX711 ready");
+    //making sure the CSN pin is configured correctly
+    pinMode(10, OUTPUT);
+    digitalWrite(10, HIGH);
     //setup the radio
     radio.begin();
     //check if the radio is connected
@@ -50,6 +57,7 @@ void setup() {
     radio.setDataRate(RF24_250KBPS);
     radio.openWritingPipe(address);
     radio.stopListening();
+    Serial.println("Radio Initialized");
 }
 
 void loop() {
@@ -57,7 +65,7 @@ void loop() {
     //hx711 test code
     if (scale.is_ready()) {
         long raw = scale.read();
-        weight = scale.get_units(10);//average of 10 readings
+        weight = (scale.get_units(10))-WEIGHTOFFSET;//average of 10 readings
         Serial.println(weight);
     } else {
         Serial.println("HX711 not ready");
