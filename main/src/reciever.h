@@ -35,7 +35,10 @@ class reciever {
         void update();
 
         //function to get the value of the reciever
-        double getValue();
+        double getValue() const;
+
+        //function to get the pipe
+        int getPipe() const;
 };
 
 #endif

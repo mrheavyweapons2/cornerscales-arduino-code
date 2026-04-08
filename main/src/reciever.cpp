@@ -31,6 +31,6 @@ void reciever::update() {
     } else display.updateDisplay(true, "No Signal");
 }
 
-double reciever::getValue() {
-    return value;
-}
+double reciever::getValue() const {return value;}
+
+int reciever::getPipe() const {return pipe};

@@ -1,13 +1,14 @@
 /**
  * @file main.ino
- * @author Jeremiah Nairn and Nadia Faruqui-Gauto
+ * @author Jeremiah Nairn
  * @ingroup main/include
  *
  * @brief This program is designed to be used with an Arduino Uno R3, and takes
  * information from 4 cornerweights, and outputs said information on 5 LCD displays.
  */
 
-//neccesary includes
+
+//neccesary non-project header includes
 #include <Arduino.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h> //display library
@@ -21,11 +22,13 @@
 //declare the radio
 RF24 radio(9, 10); //entered as CE pin, CSN pin
 
+const uint64_t base = 0x4E4F444500; // "NODE\0"
+
 //declare the addresses for the pipes
-const uint64_t address1 = 0x4E4F444531; // "NODE1" in hex
-const uint64_t address2 = 0x11; // "NODE2" in hex
-const uint64_t address3 = 0x12; // "NODE3" in hex
-const uint64_t address4 = 0x13; // "NODE4" in hex
+const uint64_t address1 = base | 0x01;
+const uint64_t address2 = base | 0x02;
+const uint64_t address3 = base | 0x03; 
+const uint64_t address4 = base | 0x04; 
 
 //declare weight variables
 double weightLF = 0.0;
@@ -94,10 +97,15 @@ void loop() {
     //run a lifetick
     Serial.println("---| loopTick |---");
     //update the recievers and displays
-    recieverLF.update();
-    recieverRF.update();
-    recieverLR.update();
-    recieverRR.update();
+    int pipeNum; //integer to tell us what pipe the radio is currently reading from
+    while (radio.available(&pipeNum)) {
+        switch (pipeNum) {
+            case recieverLF.getPipe(): recieverLF.update(); break;
+            case recieverRF.getPipe(): recieverRF.update(); break;
+            case recieverLR.getPipe(): recieverLR.update(); break;
+            case recieverRR.getPipe(): recieverRR.update(); break;
+        }
+    }
     //manually update the master display
     masterDisplay.clear();
     //print the total weight
@@ -121,6 +129,6 @@ void loop() {
     masterDisplay.print(totalLeft, 2);
     masterDisplay.print(", R: ");
     masterDisplay.print(totalRight, 2);
-    //set loop interval to 1 seconds
-    delay(1000);
+    //set loop interval to 100 milliseconds
+    delay(100);
 }
