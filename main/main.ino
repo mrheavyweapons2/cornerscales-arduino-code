@@ -36,6 +36,12 @@ double weightRF = 0.0;
 double weightLR = 0.0;
 double weightRR = 0.0;
 
+//declare the pipes
+const int pipe0 = 0;
+const int pipe1 = 1;
+const int pipe2 = 2;
+const int pipe3 = 3;
+
 //declare the small lcd objects
 smallDisplay displayLF(0x26,"Left Front",&weightLF, "lbs");
 smallDisplay displayRF(0x23,"Right Front",&weightRF, "lbs");
@@ -47,10 +53,10 @@ LiquidCrystal_I2C masterDisplay(0x27, 20, 4);
 
 
 //declare the reciever objects
-reciever recieverLF(radio, 0, address1, weightLF, displayLF);
-reciever recieverRF(radio, 1, address2, weightRF, displayRF);
-reciever recieverLR(radio, 2, address3, weightLR, displayLR);
-reciever recieverRR(radio, 3, address4, weightRR, displayRR);
+reciever recieverLF(radio, pipe0, address1, weightLF, displayLF);
+reciever recieverRF(radio, pipe1, address2, weightRF, displayRF);
+reciever recieverLR(radio, pipe2, address3, weightLR, displayLR);
+reciever recieverRR(radio, pipe3, address4, weightRR, displayRR);
 
 //arduino setup
 void setup() {
@@ -94,26 +100,36 @@ void setup() {
 
 
 void loop() {
-    //run a lifetick
+    //looptick
     Serial.println("---| loopTick |---");
-    //update the recievers and displays
-    int pipeNum; //integer to tell us what pipe the radio is currently reading from
+    //get the pipenumber and find the recieved value
+    uint8_t pipeNum;
+    float receivedValue = 0;
+    // read all pending packets
     while (radio.available(&pipeNum)) {
+        radio.read(&receivedValue, sizeof(receivedValue));
+        //run through a switch statement to look for the packets
         switch (pipeNum) {
-            case recieverLF.getPipe(): recieverLF.update(); break;
-            case recieverRF.getPipe(): recieverRF.update(); break;
-            case recieverLR.getPipe(): recieverLR.update(); break;
-            case recieverRR.getPipe(): recieverRR.update(); break;
+            case pipe0: weightLF = receivedValue; break;
+            case pipe1: weightRF = receivedValue; break;
+            case pipe2: weightLR = receivedValue; break;
+            case pipe3: weightRR = receivedValue; break;
         }
     }
-    //manually update the master display
+    // update all displays
+    displayLF.updateDisplay();
+    displayRF.updateDisplay();
+    displayLR.updateDisplay();
+    displayRR.updateDisplay();
+
+    
+    // update master display
     masterDisplay.clear();
-    //print the total weight
     masterDisplay.setCursor(0, 0);
     masterDisplay.print("TW: ");
     masterDisplay.print(weightLF + weightRF + weightLR + weightRR);
     masterDisplay.print(" lbs");
-    //print the weight distribution from front to back
+
     double totalFront = weightLF + weightRF;
     double totalBack = weightLR + weightRR;
     masterDisplay.setCursor(0, 1);
@@ -121,7 +137,7 @@ void loop() {
     masterDisplay.print(totalFront, 2);
     masterDisplay.print(", B: ");
     masterDisplay.print(totalBack, 2);
-    //print the weight distribution from left to right
+
     double totalLeft = weightLF + weightLR;
     double totalRight = weightRF + weightRR;
     masterDisplay.setCursor(0, 2);
@@ -129,6 +145,6 @@ void loop() {
     masterDisplay.print(totalLeft, 2);
     masterDisplay.print(", R: ");
     masterDisplay.print(totalRight, 2);
-    //set loop interval to 100 milliseconds
-    delay(100);
+
+    delay(500);
 }

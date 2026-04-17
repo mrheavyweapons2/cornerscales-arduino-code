@@ -16,7 +16,10 @@ HX711 scale;
 
 //declare the radio
 RF24 radio(9, 10);
-const uint64_t address = 0x12; // "NODE3" in hex
+
+const uint64_t base = 0x4E4F444500; // "NODE\0"
+
+const uint64_t address = base | 0x02;
 
 //declare wires for the cornerweight
 #define DT_PIN_FR 7
@@ -60,6 +63,9 @@ void setup() {
     Serial.println("Radio Initialized");
 }
 
+//static variables for the loop
+static uint8_t failCount = 0;
+
 void loop() {
     Serial.println("----| loopTick |----");
     //hx711 test code
@@ -74,9 +80,27 @@ void loop() {
     bool success = radio.write(&weight, sizeof(weight));
     if (success) {
         Serial.println("Sent");
+        failCount = 0;
     } else {
-        Serial.println("Send failed");
+        Serial.println("TX FAILED");
+        failCount++;
     }
-    //set loop interval to .3 seconds
-    delay(300);
+    //check for failures
+    if (failCount >= 5) {
+    radio.begin();
+    //re-apply the settings
+    radio.setChannel(76);
+    radio.setAutoAck(true);
+    radio.setRetries(15, 15); // delay, count
+    radio.enableDynamicPayloads(); //allow dynamic payloads
+    radio.setPALevel(RF24_PA_LOW);
+    radio.setDataRate(RF24_250KBPS);
+    radio.openWritingPipe(address);
+    radio.stopListening();
+    Serial.println("Radio Re-Initialized");
+    failCount = 0;
+    }
+
+    //set loop interval to 1 second
+    delay(1000);
 }

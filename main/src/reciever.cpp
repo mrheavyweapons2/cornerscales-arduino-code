@@ -10,7 +10,7 @@
 //include the main header file
 #include "reciever.h"
 
-reciever::reciever(RF24& radio, int pipe, uint64_t address, double& value, smallDisplay display)
+reciever::reciever(RF24& radio, int pipe, uint64_t address, double& value, smallDisplay& display)
     : radio(radio), pipe(pipe), address(address), value(value), display(display) {}
 
 //function to initialize the pipe and display
@@ -21,16 +21,12 @@ void reciever::initialize() {
 
 //function to update the reciever (should be in the loop)
 void reciever::update() {
-    if (radio.available()) {
-        //read the value
-        float receivedValue = 0;
-        radio.read(&receivedValue, sizeof(receivedValue));
-        //update the value and display
-        value = receivedValue;
-        display.updateDisplay();
-    } else display.updateDisplay(true, "No Signal");
+    //read the value
+    float receivedValue = 0;
+    radio.read(&receivedValue, sizeof(receivedValue));
+    //update the value and display
+    value = receivedValue;
+    display.updateDisplay();
 }
 
 double reciever::getValue() const {return value;}
-
-int reciever::getPipe() const {return pipe};

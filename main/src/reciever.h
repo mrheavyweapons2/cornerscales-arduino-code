@@ -22,11 +22,11 @@ class reciever {
         int pipe;
         uint64_t address;
         double& value;
-        smallDisplay display;
+        smallDisplay& display;
     
     public:
         //constructor
-        reciever(RF24& radio, int pipe,uint64_t address, double& value, smallDisplay display);
+        reciever(RF24& radio, int pipe,uint64_t address, double& value, smallDisplay& display);
 
         //function to initialize the pipe and display
         void initialize();
@@ -36,9 +36,6 @@ class reciever {
 
         //function to get the value of the reciever
         double getValue() const;
-
-        //function to get the pipe
-        int getPipe() const;
 };
 
 #endif
